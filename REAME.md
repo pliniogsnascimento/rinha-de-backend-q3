@@ -9,7 +9,7 @@ Ok, estou bem atrasado nesse role aqui mas o propósito não é entrar na rinha.
 # Executando a app
 
 ```sh
-# Antes de executar a app, rodar init.sql para criar bd e tabela
+# Antes de executar a app, rodar init.sql para criar bd e tabelas
 go run main.go
 ```
 
