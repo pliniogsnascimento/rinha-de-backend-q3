@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS person (
     user_nick VARCHAR(32) NOT NULL,
     user_birth DATE NOT NULL,
     user_stack VARCHAR(1024)
-)
+);

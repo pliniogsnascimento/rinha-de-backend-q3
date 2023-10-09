@@ -2,8 +2,6 @@ package adapter
 
 import (
 	"context"
-	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -35,7 +33,7 @@ func (db *PersonRepo) FindByID(id string) *person.Person {
 		Scan(&person.ID, &person.Name, &person.Nickname, &d, &stack)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Query failed: %v\n", err)
+		db.logger.Errorf("Query failed: %v\n", err)
 		return nil
 	}
 
@@ -50,7 +48,7 @@ func (db *PersonRepo) FindAll() *[]person.Person {
 	persons := []person.Person{}
 	rows, err := db.conn.Query(context.Background(), "select user_id, user_name, user_nick, user_birth, user_stack from person")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Query failed: %v\n", err)
+		db.logger.Errorf("Query failed: %v\n", err)
 		return nil
 	}
 
@@ -99,6 +97,52 @@ func (db *PersonRepo) Insert(person person.Person) (*person.Person, error) {
 		db.logger.Info(cmd)
 		return &person, nil
 	}
+}
+
+func (db *PersonRepo) Count() (int16, error) {
+	var count int16
+	err := db.conn.QueryRow(context.Background(), "SELECT COUNT(*) FROM person").Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (db *PersonRepo) FindByTerm(term string) (*[]person.Person, error) {
+	persons := []person.Person{}
+
+	rows, err := db.conn.Query(context.Background(), "SELECT * FROM person WHERE user_stack ILIKE '%' || $1 || '%' OR user_name ILIKE '%' || $1 || '%' OR user_nick ILIKE '%' || $1 || '%'", term)
+	if err != nil {
+		db.logger.Errorf("Query failed: %v\n", err)
+		return nil, err
+	}
+
+	for rows.Next() {
+		values, err := rows.Values()
+		if err != nil {
+			db.logger.Error(err)
+			continue
+		}
+
+		person := person.Person{
+			ID:        values[0].(string),
+			Name:      values[1].(string),
+			Nickname:  values[2].(string),
+			BirthDate: values[3].(time.Time).Format("2006-01-02"),
+			Stack:     strings.Split(values[4].(string), ","),
+		}
+
+		db.logger.Infow("Got person from DB",
+			"id", person.ID,
+			"name", person.Name,
+			"nick", person.Nickname,
+			"birth", person.BirthDate,
+			"stack", person.Stack,
+		)
+		persons = append(persons, person)
+	}
+
+	return &persons, nil
 }
 
 func (db *PersonRepo) Close() {
