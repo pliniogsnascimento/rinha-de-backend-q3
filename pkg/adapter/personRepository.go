@@ -40,12 +40,12 @@ func (db *PersonRepo) FindByID(id string) *person.Person {
 	return &person
 }
 
-func (db *PersonRepo) FindAll() *[]person.Person {
+func (db *PersonRepo) FindAll() (*[]person.Person, error) {
 	persons := []person.Person{}
 	rows, err := db.conn.Query(context.Background(), "select user_id, user_name, user_nick, user_birth, user_stack from person")
 	if err != nil {
 		db.logger.Errorf("Query failed: %v\n", err)
-		return nil
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -73,7 +73,7 @@ func (db *PersonRepo) FindAll() *[]person.Person {
 		persons = append(persons, person)
 	}
 
-	return &persons
+	return &persons, nil
 }
 
 func (db *PersonRepo) Insert(person person.Person) (*person.Person, error) {

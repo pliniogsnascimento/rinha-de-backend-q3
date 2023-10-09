@@ -72,7 +72,12 @@ func (s *Server) GetPersonBySearchTerm(ctx *gin.Context) {
 }
 
 func (s *Server) GetAllPerson(ctx *gin.Context) {
-	persons := s.personService.FindAll()
+	persons, err := s.personService.FindAll()
+
+	if err != nil {
+		ctx.JSON(500, err)
+		return
+	}
 
 	if persons != nil {
 		ctx.JSON(200, persons)
