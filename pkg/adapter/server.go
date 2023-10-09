@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -48,6 +49,7 @@ func (s *Server) CreatePerson(ctx *gin.Context) {
 	}
 
 	if person, err := s.personService.Insert(person); err == nil {
+		ctx.Header("Location", fmt.Sprintf("/pessoas/%s", person.ID))
 		ctx.JSON(201, person)
 	} else {
 		ctx.JSON(500, err)
