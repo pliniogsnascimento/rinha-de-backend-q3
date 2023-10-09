@@ -54,7 +54,6 @@ func (s *Server) CreatePerson(ctx *gin.Context) {
 	} else {
 		ctx.JSON(500, err)
 	}
-
 }
 
 func (s *Server) GetPersonBySearchTerm(ctx *gin.Context) {
@@ -64,45 +63,36 @@ func (s *Server) GetPersonBySearchTerm(ctx *gin.Context) {
 		return
 	}
 
-	personList, err := s.personService.FindByTerm(term)
-	if err != nil {
+	if personList, err := s.personService.FindByTerm(term); err != nil {
 		ctx.JSON(500, err)
-		return
+	} else {
+		ctx.JSON(200, personList)
 	}
-
-	ctx.JSON(200, personList)
 }
 
 func (s *Server) GetAllPerson(ctx *gin.Context) {
-	persons, err := s.personService.FindAll()
-
-	if err != nil {
+	if persons, err := s.personService.FindAll(); err != nil {
 		ctx.JSON(500, err)
-		return
-	}
-
-	if persons != nil {
+	} else if persons != nil {
 		ctx.JSON(200, persons)
-		return
+	} else {
+		ctx.Status(404)
 	}
-
-	ctx.Status(404)
 }
 
 func (s *Server) GetPersonByID(ctx *gin.Context) {
-	person := s.personService.FindByID(ctx.Param("id"))
-	if person == nil {
+	if person := s.personService.FindByID(ctx.Param("id")); person != nil {
+		ctx.JSON(200, person)
+	} else {
 		ctx.Status(404)
-		return
 	}
-	ctx.JSON(200, person)
 }
 
 func (s *Server) GetPeopleCount(ctx *gin.Context) {
-	count, err := s.personService.Count()
-	if err != nil {
+	if count, err := s.personService.Count(); err != nil {
 		ctx.Status(500)
 		return
+	} else {
+		ctx.JSON(200, gin.H{"count": count})
 	}
-	ctx.JSON(200, gin.H{"count": count})
 }
