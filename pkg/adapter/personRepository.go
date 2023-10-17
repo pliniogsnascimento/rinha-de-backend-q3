@@ -76,6 +76,7 @@ func (db *PersonRepo) FindAll() (*[]person.Person, error) {
 	return &persons, nil
 }
 
+// TODO: Understand why is failing on multiple requests
 func (db *PersonRepo) Insert(person person.Person) (*person.Person, error) {
 	person.ID = uuid.NewString()
 	if cmd, err := db.conn.Exec(
