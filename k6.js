@@ -16,7 +16,7 @@ export const options = {
         contacts: {
             executor: 'constant-vus',
             vus: 1,
-            duration: '30s',
+            duration: '2m30s',
         },
     },
 };
@@ -37,7 +37,7 @@ export default function () {
 
     const res = http.post('http://localhost:9090/pessoas', JSON.stringify(body), params);
 
-    check(res, { 'status was 200': (r) => r.status == 200 });
+    check(res, { 'status was 201': (r) => r.status == 201 });
     sleep(1);
 }
 
@@ -68,8 +68,10 @@ const selectStacks = stackList => {
     for (let i = 0; i < count; i++)
         stackOut.push(stackList[parseInt(Math.random() * stackList.length)])
 
-    return stackOut
+    return stackOut.filter(onlyUnique)
 }
+
+const onlyUnique = (value, index, array) => array.indexOf(value) === index
 
 
 const firstNames = [
