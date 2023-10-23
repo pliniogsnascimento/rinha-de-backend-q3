@@ -1,25 +1,25 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-// export const options = {
-//     stages: [
-//         { duration: '30s', target: 20 },
-//         { duration: '1m30s', target: 10 },
-//         { duration: '20s', target: 0 },
-//     ],
-// };
+export const options = {
+    stages: [
+        { duration: '30s', target: 60 },
+        { duration: '1m30s', target: 10 },
+        { duration: '20s', target: 0 },
+    ],
+};
 
 // Populate DB
-export const options = {
-    discardResponseBodies: true,
-    scenarios: {
-        contacts: {
-            executor: 'constant-vus',
-            vus: 1,
-            duration: '2m30s',
-        },
-    },
-};
+// export const options = {
+//     discardResponseBodies: true,
+//     scenarios: {
+//         contacts: {
+//             executor: 'constant-vus',
+//             vus: 10,
+//             duration: '2m30s',
+//         },
+//     },
+// };
 
 export default function () {
     const body = {

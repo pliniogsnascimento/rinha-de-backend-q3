@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -43,13 +42,14 @@ func main() {
 	}
 
 	// DB Connection
-	dbConn, err := adapter.NewDbConn(viper.GetStringMapString("db"))
+	// dbConn, err := adapter.NewDbConn(viper.GetStringMapString("db"))
+	dbConn, err := adapter.NewDbConnPool(viper.GetStringMapString("db"), sugar)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
 
-	defer dbConn.Close(context.Background())
+	defer dbConn.Close()
 
 	// Services
 	personRepository := adapter.NewPersonRepo(dbConn, sugar)

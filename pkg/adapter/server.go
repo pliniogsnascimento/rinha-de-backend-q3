@@ -20,6 +20,7 @@ type Server struct {
 }
 
 func NewServer(personService person.PersonService, logger *zap.SugaredLogger, options map[string]string) *Server {
+	// TODO: Refactor the configs usage for rate limiting
 	return &Server{
 		personService: personService,
 		routes:        gin.Default(),
