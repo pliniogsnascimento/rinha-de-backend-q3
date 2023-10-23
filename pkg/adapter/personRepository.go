@@ -129,7 +129,7 @@ func (db *PersonRepo) FindByTerm(term string) (*[]person.Person, error) {
 			Stack:     strings.Split(values[4].(string), ","),
 		}
 
-		db.logger.Infow("Got person from DB",
+		db.logger.Debugw("Got person from DB",
 			"id", person.ID,
 			"name", person.Name,
 			"nick", person.Nickname,
