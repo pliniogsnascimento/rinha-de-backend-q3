@@ -22,9 +22,6 @@ func NewPersonRepo(pool *pgxpool.Pool, logger *zap.SugaredLogger) *PersonRepo {
 
 func (db *PersonRepo) closeConnFromPool(conn *pgxpool.Conn) {
 	conn.Release()
-	// if err != nil {
-	// 	db.logger.Errorf("Failed closing connection from pool: %v\n", err)
-	// }
 }
 
 func (db *PersonRepo) FindByID(id string) *person.Person {

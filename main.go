@@ -31,7 +31,7 @@ var (
 func main() {
 	// Logger
 	logger, _ := zap.NewProduction()
-	defer logger.Sync() // flushes buffer, if any
+	defer logger.Sync()
 	sugar := logger.Sugar()
 
 	// Configs
@@ -47,7 +47,6 @@ func main() {
 	// DB Connection
 	dbOpts := dbDefaults
 	err = viper.UnmarshalKey("db", dbOpts)
-	sugar.Infoln(dbOpts)
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
