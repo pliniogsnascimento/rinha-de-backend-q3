@@ -2,7 +2,13 @@ db:
   host: localhost
   port: 5432
   user: postgres
-  pass: example
+  password: example
+  database: rinha_backend
+  defaultMaxConns: 8
 
 server:
-  port: 9090
+  port: "9090"
+  rateLimiting:
+    enable: true
+    rate: 20
+    tokenBurst: 4

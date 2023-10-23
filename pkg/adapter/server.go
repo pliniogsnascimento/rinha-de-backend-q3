@@ -16,29 +16,38 @@ type Server struct {
 
 	personService person.PersonService
 	rateLimiter   *rate.Limiter
-	options       map[string]string
+	options       *ServerOptions
 }
 
-func NewServer(personService person.PersonService, logger *zap.SugaredLogger, options map[string]string) *Server {
-	// TODO: Refactor the configs usage for rate limiting
+type ServerOptions struct {
+	Port         int
+	RateLimiting RateLimiterOptions
+}
+
+type RateLimiterOptions struct {
+	Enable     bool
+	Rate       int
+	TokenBurst int
+}
+
+func NewServer(personService person.PersonService, logger *zap.SugaredLogger, options *ServerOptions) *Server {
 	return &Server{
 		personService: personService,
 		routes:        gin.Default(),
 		logger:        logger,
-		rateLimiter:   rate.NewLimiter(20, 10),
 		options:       options,
 	}
 }
 
 func (s *Server) StartServer() {
-	s.useRateLimitMiddleware()
-	s.configurePersonRoutes()
-
-	if _, ok := s.options["port"]; !ok {
-		s.options["port"] = "8080"
+	if s.options.RateLimiting.Enable {
+		s.logger.Infoln("Using rate limit")
+		s.rateLimiter = rate.NewLimiter(rate.Limit(s.options.RateLimiting.Rate), s.options.RateLimiting.TokenBurst)
+		s.useRateLimitMiddleware()
 	}
 
-	http.ListenAndServe(fmt.Sprintf(":%s", s.options["port"]), s.routes)
+	s.configurePersonRoutes()
+	http.ListenAndServe(fmt.Sprintf(":%d", s.options.Port), s.routes)
 }
 
 // Simple token bucket rate limit

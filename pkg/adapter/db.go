@@ -3,11 +3,26 @@ package adapter
 import (
 	"context"
 	"fmt"
+	"time"
 
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
+
+type DbConnOpts struct {
+	User                     string
+	Password                 string
+	Host                     string
+	Port                     string
+	Database                 string
+	DefaultMaxConns          int32
+	DefaultMinConns          int32
+	DefaultMaxConnLifetime   time.Duration
+	DefaultMaxConnIdleTime   time.Duration
+	DefaultHealthCheckPeriod time.Duration
+	DefaultConnectTimeout    time.Duration
+}
 
 func NewDbConn(options map[string]string) (*pgx.Conn, error) {
 	return pgx.Connect(context.Background(), fmt.Sprintf("postgres://%s:%s@%s:%s/rinha_backend",
@@ -18,31 +33,25 @@ func NewDbConn(options map[string]string) (*pgx.Conn, error) {
 	))
 }
 
-func NewDbConnPool(options map[string]string, logger *zap.SugaredLogger) (*pgxpool.Pool, error) {
-	connConfig, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%s/rinha_backend",
-		options["user"],
-		options["pass"],
-		options["host"],
-		options["port"],
+func NewDbConnPool(opts *DbConnOpts, logger *zap.SugaredLogger) (*pgxpool.Pool, error) {
+	connConfig, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+		opts.User,
+		opts.Password,
+		opts.Host,
+		opts.Port,
+		opts.Database,
 	))
+
 	if err != nil {
 		panic(err)
 	}
 
-	// TODO: Refactor the configs usage
-	// const defaultMaxConns = int32(4)
-	// const defaultMinConns = int32(0)
-	// const defaultMaxConnLifetime = time.Hour
-	// const defaultMaxConnIdleTime = time.Minute * 30
-	// const defaultHealthCheckPeriod = time.Minute
-	// const defaultConnectTimeout = time.Second * 5
-
-	// connConfig.MaxConns = defaultMaxConns
-	// connConfig.MinConns = defaultMinConns
-	// connConfig.MaxConnLifetime = defaultMaxConnLifetime
-	// connConfig.MaxConnIdleTime = defaultMaxConnIdleTime
-	// connConfig.HealthCheckPeriod = defaultHealthCheckPeriod
-	// connConfig.ConnConfig.ConnectTimeout = defaultConnectTimeout
+	connConfig.MaxConns = opts.DefaultMaxConns
+	connConfig.MinConns = opts.DefaultMinConns
+	connConfig.MaxConnLifetime = opts.DefaultMaxConnLifetime
+	connConfig.MaxConnIdleTime = opts.DefaultMaxConnIdleTime
+	connConfig.HealthCheckPeriod = opts.DefaultHealthCheckPeriod
+	connConfig.ConnConfig.ConnectTimeout = opts.DefaultConnectTimeout
 
 	connConfig.BeforeAcquire = func(ctx context.Context, c *pgx.Conn) bool {
 		logger.Debugln("Acquiring the connection from db pool")
@@ -59,10 +68,4 @@ func NewDbConnPool(options map[string]string, logger *zap.SugaredLogger) (*pgxpo
 	}
 
 	return pgxpool.NewWithConfig(context.Background(), connConfig)
-	// return pgxpool.New(context.Background(), fmt.Sprintf("postgres://%s:%s@%s:%s/rinha_backend",
-	// 	options["user"],
-	// 	options["pass"],
-	// 	options["host"],
-	// 	options["port"],
-	// ))
 }
