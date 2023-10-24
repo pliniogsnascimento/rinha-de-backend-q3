@@ -10,5 +10,5 @@ server:
   port: "9090"
   rateLimiting:
     enable: true
-    rate: 20
-    tokenBurst: 4
+    rate: 100
+    tokenBurst: 50

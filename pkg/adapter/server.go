@@ -53,6 +53,7 @@ func (s *Server) StartServer() {
 // Simple token bucket rate limit
 func (s *Server) useRateLimitMiddleware() {
 	s.routes.Use(func(ctx *gin.Context) {
+		s.logger.Infof("%d tokens available\n", int(s.rateLimiter.Tokens()))
 		if s.rateLimiter.Allow() {
 			ctx.Next()
 		} else {
