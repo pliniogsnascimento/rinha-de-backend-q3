@@ -3,10 +3,16 @@ import { check, sleep } from 'k6';
 
 export const options = {
     stages: [
-        { duration: '30s', target: 20 },
-        { duration: '1m30s', target: 10 },
+        { duration: '1m', target: 120 },
+        { duration: '1m', target: 120 },
         { duration: '20s', target: 0 },
     ],
+};
+
+const params = {
+    headers: {
+        'Content-Type': 'application/json',
+    },
 };
 
 // Populate DB
@@ -21,7 +27,16 @@ export const options = {
 //     },
 // };
 
-export default function () {
+export default function () { searchByTerm() }
+
+const searchByTerm = () => {
+    const res = http.get('http://localhost:9090/pessoas?t=re', params);
+    console.log(res.status)
+    check(res, { 'status was 200': (r) => r.status == 200 });
+    sleep(1);
+}
+
+const populateDb = () => {
     const body = {
         nome: getName(),
         apelido: "not informed",
@@ -29,15 +44,9 @@ export default function () {
         stack: getStack()
     }
 
-    const params = {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    };
-
     const res = http.post('http://localhost:9090/pessoas', JSON.stringify(body), params);
 
-    check(res, { 'status was 201': (r) => r.status == 201 });
+    check(res, { 'status was 200': (r) => r.status == 200 });
     sleep(1);
 }
 

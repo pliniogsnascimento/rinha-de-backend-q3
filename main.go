@@ -5,13 +5,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/pliniogsnascimento/rinha-de-backend-q3/pkg/adapter"
+	db "github.com/pliniogsnascimento/rinha-de-backend-q3/pkg/adapter/database"
+	"github.com/pliniogsnascimento/rinha-de-backend-q3/pkg/adapter/http"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
 var (
-	dbDefaults = &adapter.DbConnOpts{
+	dbDefaults = &db.DbConnOpts{
 		DefaultMaxConns:          int32(4),
 		DefaultMinConns:          int32(0),
 		DefaultMaxConnLifetime:   time.Hour,
@@ -20,9 +21,9 @@ var (
 		DefaultConnectTimeout:    time.Second * 5,
 	}
 
-	serverDefaults = &adapter.ServerOptions{
+	serverDefaults = &http.ServerOptions{
 		Port: 8080,
-		RateLimiting: adapter.RateLimiterOptions{
+		RateLimiting: http.RateLimiterOptions{
 			Enable: false,
 		},
 	}
@@ -50,15 +51,14 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	dbConn, err := adapter.NewDbConnPool(dbOpts, sugar)
+	gormDb, err := db.NewGormDb(dbOpts, sugar)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
-	defer dbConn.Close()
 
 	// Services
-	personRepository := adapter.NewPersonRepo(dbConn, sugar)
+	personRepository := db.NewPersonRepo(gormDb, sugar)
 
 	// Server
 	serverOpts := serverDefaults
@@ -66,6 +66,6 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-	server := adapter.NewServer(personRepository, sugar, serverOpts)
+	server := http.NewServer(personRepository, sugar, serverOpts)
 	server.StartServer()
 }
