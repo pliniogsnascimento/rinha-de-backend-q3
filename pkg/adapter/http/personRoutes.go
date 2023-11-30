@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pliniogsnascimento/rinha-de-backend-q3/pkg/person"
+	"github.com/pliniogsnascimento/rinha-de-backend-q3/pkg/ports/person"
 )
 
 func (s *Server) configurePersonRoutes() {

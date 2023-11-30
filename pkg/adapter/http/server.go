@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pliniogsnascimento/rinha-de-backend-q3/pkg/person"
+	"github.com/pliniogsnascimento/rinha-de-backend-q3/pkg/ports/person"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 )
