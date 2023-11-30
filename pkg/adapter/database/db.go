@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: Use this parameters
 type DbConnOpts struct {
 	User                     string
 	Password                 string
