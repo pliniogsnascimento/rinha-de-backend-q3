@@ -2,7 +2,7 @@ db:
   host: localhost
   port: 5432
   user: postgres
-  password: example
+  password: pass1234
   database: rinha_backend
   defaultMaxConns: 8
 
